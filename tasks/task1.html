@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Task 1</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css?family=Lato:regular,700");
+
+      body {
+        font-family: "Lato";
+        background-image: linear-gradient(to right, #005083, #23704e);
+      }
+      label {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      input,
+      button {
+        padding: 5px 20px;
+        border-radius: 5px;
+        border: 2px solid #000;
+      }
+      button:hover {
+        background: rgb(120, 120, 120);
+        color: #fff;
+        cursor: pointer;
+      }
+      .app {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .wrapper {
+        margin-top: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .boys-container,
+      .girls-container {
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: 700;        
+      }
+      span {
+        color: yellow;
+      }
+      .boys-list-wrapper,
+      .girls-list-wrapper {
+        margin-top: 20px;
+        border: 2px solid #fff;
+        min-width: 450px;
+        min-height: 150px;
+      }
+      .boys-list,
+      .girls-list {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 10px;
+      }
+      .btns {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .result-container {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .result-list {
+        margin-top: 20px;
+        min-width: 400px;
+        min-height: 200px;
+        border: 2px solid #fff;
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #fff;
+        padding: 10px 0px;
+      }
+      .boy,
+      .girl {
+        cursor: pointer;
+      }
+      .yellow {
+        border: 2px solid yellow;
+        padding: 3px 6px;
+      }
+      .dance-pair {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 3px 7px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="app">
+      <div class="wrapper">
+        <div class="boys-container">
+          <label>
+            Add boy to boys list:
+            <input type="text" v-model="boyName" />
+            <button type="button" @click="addNameToBoysList">Add</button>
+          </label>
+          <div style="margin-top: 20px">
+            <span>(1 step)</span> Please choose the boy:
+            <div class="boys-list-wrapper">
+              <div
+                class="boys-list"
+                v-for="(boy, index) in boysList"
+                :key="boy.id"
+              >
+                <div
+                  class="boy"
+                  :class="{'yellow': boy.activeDance}"
+                  @click="getActiveAndAddToChoosenList(boy)"
+                >
+                  {{boy.name}}
+                </div>
+                <div class="btns">
+                  <button type="button" @click="dlelteBoyFromBoysList(index)">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="girls-container">
+          <label>
+            Add girl to girls list:
+            <input type="text" v-model="girlName" />
+            <button type="button" @click="addNameToGirlsList">Add</button>
+          </label>
+          <div style="margin-top: 20px">
+            <span>(2 step)</span> Please choose the girl:
+            <div class="girls-list-wrapper">
+              <div
+                class="girls-list"
+                v-for="(girl, index) in girlsList"
+                :key="girl.id"
+              >
+                <div
+                  class="girl"
+                  :class="{'yellow':girl.activeDance}"
+                  @click="getActiveAndAddToChoosenList(girl)"
+                >
+                  {{girl.name}}
+                </div>
+                <div class="btns">
+                  <button type="button" @click="dlelteGirlFromGirlsList(index)">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="result-container">
+        <button type="button" :disabled="isDisabled" @click="addToDanceList">
+          Add Pair To Dancefloor
+        </button>
+        <div class="result-list" v-if="danceList.length">Dancefloor:
+          <div v-for="item in danceList" class="dance-pair">            
+            <p>{{item.pair}}</p>
+            <button type="button" @click = 'removeFromDanceList(item.id)'>Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            boyName: null,
+            girlName: null,
+            boysList: [
+              { id: "111", name: "Den", activeDance: false },
+              { id: "222", name: "Kris", activeDance: false },
+              { id: "333", name: "Kirk", activeDance: false },
+              { id: "444", name: "Dave", activeDance: false },
+            ],
+            girlsList: [
+              { id: "1111", name: "Courtney", activeDance: false },
+              { id: "2222", name: "Nancy", activeDance: false },
+              { id: "3333", name: "Wendy", activeDance: false },
+              { id: "3333", name: "Betty", activeDance: false },
+
+            ],
+            choosenList: [],
+            danceList: [],
+          };
+        },
+        methods: {
+          addNameToBoysList() {
+            this.boysList.push({
+              id: Date.now(),
+              name: this.boyName,
+              activeDance: false,
+            });
+            this.boyName = null;
+          },
+          dlelteBoyFromBoysList(index) {
+            this.boysList.splice(index, 1);
+          },
+          addNameToGirlsList() {
+            this.girlsList.push({
+              id: Date.now(),
+              name: this.girlName,
+              activeDance: false,
+            });
+            this.girlName = null;
+          },
+          dlelteGirlFromGirlsList(index) {
+            this.girlsList.splice(index, 1);
+          },
+          getActiveAndAddToChoosenList(obj) {
+            obj.activeDance = !obj.activeDance;
+            this.choosenList.push(obj.name);
+          },
+          addToDanceList() {
+            this.boysList = this.boysList.filter((boy) => !boy.activeDance);
+            this.girlsList = this.girlsList.filter((girl) => !girl.activeDance);
+            this.danceList.push({id: Date.now(), pair: this.choosenList.join('-')})
+            console.log(this.danceList)         
+            this.choosenList = [];
+          },
+          removeFromDanceList (id) {
+            this.danceList = this.danceList.filter(pair => pair.id !== id)
+          }
+        },
+        computed: {
+          isDisabled() {
+            if (this.boysList.length !== this.girlsList.length) return true;
+            if (this.choosenList.length === 0 || this.choosenList.length % 2) {
+              return true;
+            }
+            return false;
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

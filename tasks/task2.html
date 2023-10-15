@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Task 2</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css?family=Lato:regular,700");
+
+      body {
+        font-family: "Lato";
+        background-image: linear-gradient(to right, #005083, #23704e);
+      }
+      label {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      button {
+        padding: 5px 20px;
+        border-radius: 5px;
+        border: 2px solid #000;
+        display: block;
+        margin: 30px auto;
+      }
+      button:hover {
+        background: rgb(120, 120, 120);
+        color: #fff;
+        cursor: pointer;
+      }
+      .app {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .wrapper {
+        margin-top: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      select {
+        padding: 3px 6px;
+        border: 2px solid #fff;
+        border-radius: 5px;
+        font-weight: 700;
+      }
+      .auto-list {
+        margin-top: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+        flex-direction: column;
+        text-transform: uppercase;
+        color: yellow;
+        font-weight: 700;
+      }
+      .auto {
+        margin-top: 10px;
+        text-transform: uppercase;
+        color: #fff;
+        font-weight: 500;
+      }
+      span {
+        color: yellow;
+      }
+      .no-results {
+        text-align: center;
+        margin-top: 20px;
+        text-transform: uppercase;
+        color: #fff;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="app">
+      <div class="wrapper">
+        <div class="year">
+          <select v-model="selectedYear">
+            <option disabled value="Sort by year">Sort by year</option>
+            <option v-for="year in yearsList" :value="year" :key="year">
+              {{year}}
+            </option>
+          </select>
+        </div>
+        <div class="brand">
+          <select v-model="selectedCarBrand">
+            <option disabled>Sort by brand</option>
+            <option v-for="brand in carBrandsList" :value="brand" :key="brand">
+              {{brand}}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="auto-list">
+        Auto list:
+        <div class="auto" v-for="auto in autoList" :key="auto.id">
+          <span>Brand:</span>{{auto.brand}} - <span>Price:</span>{{auto.price}}
+          <span>$</span> - <span>Year:</span>{{auto.year}}
+        </div>
+      </div>
+      <div class="no-results" v-if="!autoList.length">No results</div>
+      <button v-if="showButton" @click="getRefreshFilters">
+        Refresh filter
+      </button>
+    </div>
+    <script>
+      const { createApp } = Vue;
+
+      const autoData = [
+        { id: "1", brand: "Cadilac", price: 7000, year: 2004 },
+        { id: "2", brand: "Dodge", price: 5600, year: 2001 },
+        { id: "3", brand: "GMC", price: 6000, year: 2005 },
+        { id: "4", brand: "Cadilac", price: 5500, year: 2000 },
+        { id: "5", brand: "Chevrolet", price: 4300, year: 2006 },
+        { id: "6", brand: "Lincoln", price: 9000, year: 2009 },
+        { id: "7", brand: "Cadilac", price: 7000, year: 2004 },
+        { id: "8", brand: "GMC", price: 8200, year: 2000 },
+      ];
+
+      createApp({
+        data() {
+          return {
+            selectedYear: "Sort by year",
+            selectedCarBrand: "Sort by brand",
+          };
+        },
+        methods: {
+          getRefreshFilters() {
+            (this.selectedYear = "Sort by year"),
+              (this.selectedCarBrand = "Sort by brand");
+          },
+        },
+        computed: {
+          yearsList() {
+            let yearsData = [];
+            autoData.map((auto) => yearsData.push(auto.year));
+            let uniqYearsList = [...new Set(yearsData)].sort();
+            return uniqYearsList;
+          },
+          carBrandsList() {
+            let carBrandsData = [];
+            autoData.map((auto) => carBrandsData.push(auto.brand));
+            let uniqCarBrandsList = [...new Set(carBrandsData)].sort();
+            return uniqCarBrandsList;
+          },
+          autoList() {
+            let defaultConditionTrue =
+              this.selectedYear === "Sort by year" &&
+              this.selectedCarBrand === "Sort by brand";
+            let defaultConditionFalse =
+              this.selectedYear !== "Sort by year" &&
+              this.selectedCarBrand !== "Sort by brand";
+            if (defaultConditionTrue) return autoData;
+            if (
+              defaultConditionFalse &&
+              this.selectedYear &&
+              this.selectedCarBrand
+            )
+              return autoData.filter(
+                (auto) =>
+                  auto.year === this.selectedYear &&
+                  auto.brand === this.selectedCarBrand
+              );
+
+            if (
+              this.selectedYear &&
+              this.selectedCarBrand === "Sort by brand"
+            ) {              
+              return autoData.filter((auto) => auto.year === this.selectedYear);
+            }
+            if (this.selectedYear === "Sort by year" && this.selectedCarBrand)
+              return autoData.filter((auto) =>
+                auto.brand.includes(this.selectedCarBrand)
+              );
+            else return autoData;
+          },
+          showButton() {
+            return (
+              this.selectedYear !== "Sort by year" ||
+              this.selectedCarBrand !== "Sort by brand"
+            );
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
